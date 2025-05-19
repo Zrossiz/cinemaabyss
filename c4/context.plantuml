@@ -1,0 +1,20 @@
+@startuml
+!includeurl https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Context.puml
+LAYOUT_WITH_LEGEND()
+
+Person(user, "Пользователь", "Смотрит фильмы через мобильное, веб или ТВ-приложение")
+
+System(kinobezdna, "Кинобездна", "Онлайн-кинотеатр-агрегатор. Предоставляет доступ к видео по подписке")
+
+System_Ext(recommendation, "Recommendation Engine", "Сторонний сервис рекомендаций на основе предпочтений пользователя")
+System_Ext(paymentSystem, "Платёжная система", "Обрабатывает внешние платежи")
+System_Ext(s3, "S3/Объектное хранилище", "Хранение видеоконтента и обложек")
+
+
+Rel(user, kinobezdna, "Смотрит фильмы, оформляет подписку, ставит оценки", "HTTPS/REST")
+
+Rel(kinobezdna, recommendation, "Получает подборки фильмов")
+Rel(kinobezdna, paymentSystem, "Проводит платежи и проверяет статусы")
+Rel(kinobezdna, s3, "Хранит и читает видео, постеры")
+
+@enduml

@@ -1,0 +1,42 @@
+@startuml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+LAYOUT_WITH_LEGEND()
+
+Person(user, "Пользователь", "Смотрит фильмы через веб/моб/ТВ приложения")
+
+System_Boundary(s1, "Кинобездна") {
+
+  Container(api, "API Gateway", "Go", "Маршрутизация запросов от клиентов")
+  Container(users, "Users Service", "Go", "Работа с пользователями")
+  Container(movies, "Movies Service", "Go", "Метаданные и каталог фильмов")
+  Container(events, "Events Service", "Go", "Логирование действий пользователя")
+  Container(payment, "Payment Service", "Go", "Работа с оплатой, взаимодействие с внешним API")
+  Container(s3api, "S3 Adapter", "Go", "Доступ к S3 хранилищу")
+
+  ContainerDb(paymentDb, "Payment DB", "PostgreSQL", "Данные об оплатах")
+  ContainerDb(usersDb, "Users DB", "PostgreSQL", "Хранение данных пользователей")
+  ContainerDb(moviesDb, "Movies DB", "PostgreSQL", "Хранение фильмов и метаданных")
+  ContainerDb(eventsDb, "Events DB", "PostgreSQL", "События и действия пользователей")
+}
+
+System_Ext(s3, "S3", "Объектное хранилище")
+System_Ext(recommendation, "Recommendation Engine", "Подбор рекомендаций для пользователей")
+System_Ext(externalPayment, "Внешняя платёжная система", "Обработка транзакций")
+
+Rel(user, api, "Использует", "HTTPS")
+Rel(api, users, "Запросы к пользователям", "gRPC")
+Rel(api, movies, "Запросы к фильмам", "gRPC")
+Rel(api, events, "Отправка событий", "gRPC")
+Rel(api, payment, "Оплата", "gRPC")
+Rel(api, s3api, "Доступ к видео", "REST")
+
+Rel(users, usersDb, "Чтение/запись")
+Rel(movies, moviesDb, "Чтение/запись")
+Rel(events, eventsDb, "Запись")
+Rel(payment, paymentDb, "Чтение/запись")
+Rel(payment, externalPayment, "Вызывает внешнее API", "HTTPS/REST")  
+Rel(s3api, s3, "Доступ к файлам", "S3 API")
+
+Rel(api, recommendation, "Запрос рекомендаций", "Kafka")
+
+@enduml
