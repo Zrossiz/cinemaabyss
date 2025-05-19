@@ -98,6 +98,7 @@ services:
       KAFKA_BROKERS: kafka:9092
     networks:
       - cinemaabyss-network
+    restart: unless-stopped
 
   # Proxy Service (API Gateway)
   proxy-service:
