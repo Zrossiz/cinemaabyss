@@ -49,6 +49,8 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
     networks:
       - cinemaabyss-network
+    restart: unless-stopped
+
 
   # Monolith Service
   monolith:
@@ -65,6 +67,7 @@ services:
       DB_CONNECTION_STRING: postgres://postgres:postgres_password@postgres:5432/cinemaabyss?sslmode=disable
     networks:
       - cinemaabyss-network
+    restart: unless-stopped
 
   # Movies Microservice
   movies-service:
@@ -81,6 +84,8 @@ services:
       DB_CONNECTION_STRING: postgres://postgres:postgres_password@postgres:5432/cinemaabyss?sslmode=disable
     networks:
       - cinemaabyss-network
+    restart: unless-stopped
+
 
   # Events Microservice
   events-service:

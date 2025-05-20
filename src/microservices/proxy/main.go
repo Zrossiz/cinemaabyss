@@ -13,11 +13,12 @@ var (
 	monolithURL      = os.Getenv("MONOLITH_URL")
 	migrationEnabled = os.Getenv("GRADUAL_MIGRATION") == "true"
 	migrationPercent = getPercentFromEnv("MOVIES_MIGRATION_PERCENT", 0)
+	serverPort       = os.Getenv("PORT")
 )
 
 func main() {
-	http.HandleFunc("/movies", proxyHandler)
-	http.ListenAndServe(":8000", nil)
+	http.HandleFunc("/", proxyHandler)
+	http.ListenAndServe(serverPort, nil)
 }
 
 func proxyHandler(rw http.ResponseWriter, r *http.Request) {
@@ -29,7 +30,7 @@ func proxyHandler(rw http.ResponseWriter, r *http.Request) {
 }
 
 func shouldUseMicroservice(r *http.Request) bool {
-	if migrationEnabled {
+	if true {
 		return false
 	}
 

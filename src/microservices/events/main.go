@@ -1,19 +1,24 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/IBM/sarama"
 )
 
 var KAFKA_BROKERS = os.Getenv("KAFKA_BROKERS")
+var SERVER_PORT = os.Getenv("PORT")
 var Producer sarama.SyncProducer
 var Consumer sarama.Consumer
 
 func main() {
+	time.Sleep(5 * time.Second)
+
 	producer, err := initProducer()
 	if err != nil {
 		panic(err)
@@ -35,30 +40,34 @@ func main() {
 	http.HandleFunc("/api/events/user", handleUser)
 	http.HandleFunc("/api/events/payment", handlePayment)
 
-	http.ListenAndServe(":8082", nil)
+	http.ListenAndServe(SERVER_PORT, nil)
 }
 
 func handleMovie(rw http.ResponseWriter, r *http.Request) {
 	sendMessage("movie-events", "movie message")
 	rw.Header().Set("Content-Type", "application/json")
-	rw.WriteHeader(http.StatusOK)
+	rw.WriteHeader(http.StatusCreated)
+	json.NewEncoder(rw).Encode(map[string]string{"status": "success"})
 }
 
 func handleUser(rw http.ResponseWriter, r *http.Request) {
 	sendMessage("user-events", "user message")
 	rw.Header().Set("Content-Type", "application/json")
-	rw.WriteHeader(http.StatusOK)
+	rw.WriteHeader(http.StatusCreated)
+	json.NewEncoder(rw).Encode(map[string]string{"status": "success"})
 }
 
 func handlePayment(rw http.ResponseWriter, r *http.Request) {
 	sendMessage("payment-events", "payment message")
 	rw.Header().Set("Content-Type", "application/json")
-	rw.WriteHeader(http.StatusOK)
+	rw.WriteHeader(http.StatusCreated)
+	json.NewEncoder(rw).Encode(map[string]string{"status": "success"})
 }
 
 func handleHealth(rw http.ResponseWriter, r *http.Request) {
 	rw.Header().Set("Content-Type", "application/json")
 	rw.WriteHeader(http.StatusOK)
+	json.NewEncoder(rw).Encode(map[string]bool{"status": true})
 }
 
 func initProducer() (sarama.SyncProducer, error) {
@@ -86,9 +95,18 @@ func initConsumer() (sarama.Consumer, error) {
 
 func startConsumer() {
 	for _, topic := range [3]string{"movie-events", "user-events", "payment-events"} {
-		partitions, _ := Consumer.Partitions(topic)
+		partitions, err := Consumer.Partitions(topic)
+		if err != nil {
+			fmt.Printf("Error fetching partitions for topic %s: %v\n", topic, err)
+			continue
+		}
+
 		for _, partition := range partitions {
-			pc, _ := Consumer.ConsumePartition(topic, partition, sarama.OffsetNewest)
+			pc, err := Consumer.ConsumePartition(topic, partition, sarama.OffsetNewest)
+			if err != nil {
+				fmt.Printf("Error consuming partition %d of topic %s: %v\n", partition, topic, err)
+				continue
+			}
 
 			go func(pc sarama.PartitionConsumer, topic string) {
 				for msg := range pc.Messages() {
