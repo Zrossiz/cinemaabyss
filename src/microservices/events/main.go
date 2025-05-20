@@ -40,7 +40,7 @@ func main() {
 	http.HandleFunc("/api/events/user", handleUser)
 	http.HandleFunc("/api/events/payment", handlePayment)
 
-	http.ListenAndServe(SERVER_PORT, nil)
+	http.ListenAndServe(":"+SERVER_PORT, nil)
 }
 
 func handleMovie(rw http.ResponseWriter, r *http.Request) {
