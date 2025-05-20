@@ -49,6 +49,7 @@ jobs:
             type=sha,format=short
             type=ref,event=branch
             latest
+            platforms: linux/amd64,linux/arm64
 
       - name: Extract metadata (tags, labels) for Proxy Service
         id: meta-proxy
@@ -61,6 +62,7 @@ jobs:
             type=sha,format=short
             type=ref,event=branch
             latest
+            platforms: linux/amd64,linux/arm64
 
       - name: Extract metadata (tags, labels) for Events Service
         id: meta-events
@@ -83,6 +85,7 @@ jobs:
           labels: ${{ steps.meta-monolith.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+          platforms: linux/amd64,linux/arm64
 
       - name: Extract metadata (tags, labels) for Movies Service
         id: meta-movies
@@ -105,6 +108,7 @@ jobs:
           labels: ${{ steps.meta-movies.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+          platforms: linux/amd64,linux/arm64
 
       - name: Build and push Proxy Service Docker image
         uses: docker/build-push-action@v4
@@ -115,6 +119,7 @@ jobs:
           labels: ${{ steps.meta-proxy.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+          platforms: linux/amd64,linux/arm64
 
       - name: Build and push Events Service Docker image
         uses: docker/build-push-action@v4
@@ -125,6 +130,7 @@ jobs:
           labels: ${{ steps.meta-events.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+          platforms: linux/amd64,linux/arm64
 
       - name: Run API tests
         run: |

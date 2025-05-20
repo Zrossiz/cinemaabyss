@@ -16,17 +16,22 @@ var SERVER_PORT = os.Getenv("PORT")
 var Producer sarama.SyncProducer
 var Consumer sarama.Consumer
 
+const (
+	retryInterval = 5 * time.Second
+	maxRetries    = 10
+)
+
 func main() {
 	time.Sleep(5 * time.Second)
 
-	producer, err := initProducer()
+	producer, err := retryInitProducer()
 	if err != nil {
 		panic(err)
 	}
 	Producer = producer
 	defer Producer.Close()
 
-	consumer, err := initConsumer()
+	consumer, err := retryInitConsumer()
 	if err != nil {
 		panic(err)
 	}
@@ -68,6 +73,34 @@ func handleHealth(rw http.ResponseWriter, r *http.Request) {
 	rw.Header().Set("Content-Type", "application/json")
 	rw.WriteHeader(http.StatusOK)
 	json.NewEncoder(rw).Encode(map[string]bool{"status": true})
+}
+
+func retryInitProducer() (sarama.SyncProducer, error) {
+	var producer sarama.SyncProducer
+	var err error
+	for i := 0; i < maxRetries; i++ {
+		producer, err = initProducer()
+		if err == nil {
+			return producer, nil
+		}
+		fmt.Printf("Failed to init producer (attempt %d/%d): %v\n", i+1, maxRetries, err)
+		time.Sleep(retryInterval)
+	}
+	return nil, fmt.Errorf("failed to init producer after %d retries: %w", maxRetries, err)
+}
+
+func retryInitConsumer() (sarama.Consumer, error) {
+	var consumer sarama.Consumer
+	var err error
+	for i := 0; i < maxRetries; i++ {
+		consumer, err = initConsumer()
+		if err == nil {
+			return consumer, nil
+		}
+		fmt.Printf("Failed to init consumer (attempt %d/%d): %v\n", i+1, maxRetries, err)
+		time.Sleep(retryInterval)
+	}
+	return nil, fmt.Errorf("failed to init consumer after %d retries: %w", maxRetries, err)
 }
 
 func initProducer() (sarama.SyncProducer, error) {
