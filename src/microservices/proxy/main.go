@@ -18,7 +18,7 @@ var (
 
 func main() {
 	http.HandleFunc("/", proxyHandler)
-	http.ListenAndServe(serverPort, nil)
+	http.ListenAndServe(":"+serverPort, nil)
 }
 
 func proxyHandler(rw http.ResponseWriter, r *http.Request) {
