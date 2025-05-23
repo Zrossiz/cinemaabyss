@@ -3,7 +3,6 @@ package main
 import (
 	"crypto/md5"
 	"encoding/binary"
-	"fmt"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
@@ -20,9 +19,13 @@ var (
 )
 
 func main() {
+	http.HandleFunc("/health", healthHandler)
 	http.HandleFunc("/", proxyHandler)
-	fmt.Println("STARTING ON: ", ":"+serverPort)
 	http.ListenAndServe(":"+serverPort, nil)
+}
+
+func healthHandler(rw http.ResponseWriter, r *http.Request) {
+	rw.WriteHeader(http.StatusOK)
 }
 
 func proxyHandler(rw http.ResponseWriter, r *http.Request) {
