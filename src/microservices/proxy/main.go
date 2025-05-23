@@ -29,9 +29,28 @@ func healthHandler(rw http.ResponseWriter, r *http.Request) {
 }
 
 func proxyHandler(rw http.ResponseWriter, r *http.Request) {
-	target := monolithURL
-	if shouldUseMicroservice(r) {
-		target = moviesServiceURL
+	var target string
+
+	// Пути, которые всегда идут на монолит
+	if r.URL.Path == "/api/users" ||
+		r.URL.Path == "/api/payments" ||
+		r.URL.Path == "/api/subscriptions" {
+		target = monolithURL
+	} else if r.URL.Path == "/api/movies" || r.URL.Path == "/api/movies/health" {
+		// Миграция для микросервиса фильмов
+		if shouldUseMicroservice(r) {
+			target = moviesServiceURL
+		} else {
+			target = monolithURL
+		}
+	} else if r.URL.Path == "/health" {
+		// Если нужна какая-то логика — можно тут обрабатывать отдельно
+		// Иначе просто отдаём 200 как сейчас
+		healthHandler(rw, r)
+		return
+	} else {
+		// По умолчанию проксируем на монолит
+		target = monolithURL
 	}
 
 	remote, err := url.Parse(target)
