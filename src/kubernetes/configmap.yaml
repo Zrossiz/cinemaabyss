@@ -10,6 +10,8 @@ data:
   DB_NAME: "cinemaabyss"
   DB_USER: "postgres"
 
+  KAFKA_BROKERS: kafka:9092
+
   # Service URLs
   MONOLITH_URL: "http://monolith:8080"
   MOVIES_SERVICE_URL: "http://movies-service:8081"

@@ -28,7 +28,7 @@ spec:
         - containerPort: 8082
         env:
         - name: PORT
-          value: ":8082"
+          value: "8082"
         - name: KAFKA_BROKERS
           valueFrom:
             configMapKeyRef:

@@ -3,7 +3,10 @@ package main
 import (
 	"crypto/md5"
 	"encoding/binary"
+	"fmt"
 	"net/http"
+	"net/http/httputil"
+	"net/url"
 	"os"
 	"strconv"
 )
@@ -18,22 +21,27 @@ var (
 
 func main() {
 	http.HandleFunc("/", proxyHandler)
+	fmt.Println("STARTING ON: ", ":"+serverPort)
 	http.ListenAndServe(":"+serverPort, nil)
 }
 
 func proxyHandler(rw http.ResponseWriter, r *http.Request) {
+	target := monolithURL
 	if shouldUseMicroservice(r) {
-		http.Redirect(rw, r, moviesServiceURL+r.RequestURI, http.StatusTemporaryRedirect)
-	} else {
-		http.Redirect(rw, r, monolithURL+r.RequestURI, http.StatusTemporaryRedirect)
+		target = moviesServiceURL
 	}
+
+	remote, err := url.Parse(target)
+	if err != nil {
+		http.Error(rw, "Bad target URL", http.StatusInternalServerError)
+		return
+	}
+
+	proxy := httputil.NewSingleHostReverseProxy(remote)
+	proxy.ServeHTTP(rw, r)
 }
 
 func shouldUseMicroservice(r *http.Request) bool {
-	if true {
-		return false
-	}
-
 	userID := r.Header.Get("X-User-ID")
 	if userID == "" {
 		userID = r.RemoteAddr
