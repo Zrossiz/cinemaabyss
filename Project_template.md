@@ -357,7 +357,7 @@ minikube tunnel
 
 Потом вызовите 
 https://cinemaabyss.example.com/api/movies и приложите скриншот
-
+[Скрин helm](assets/Helm.png) 
 
 ## Удаляем все
 
