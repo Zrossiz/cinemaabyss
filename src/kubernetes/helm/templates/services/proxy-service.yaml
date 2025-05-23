@@ -25,7 +25,24 @@ spec:
     spec:
       containers:
       - name: proxy-service
-        ..... тут
+        image: "{{ .Values.proxyService.image.repository }}:{{ .Values.proxyService.image.tag }}"
+        imagePullPolicy: {{ .Values.proxyService.image.pullPolicy }}
+        env:
+        - name: MOVIES_SERVICE_URL
+          value: "{{ .Values.proxyService.env.moviesServiceUrl }}"
+        - name: MONOLITH_URL
+          value: "{{ .Values.proxyService.env.monolithUrl }}"
+        - name: PORT
+          value: "{{ .Values.proxyService.env.PORT }}"
+        ports:
+        - containerPort: {{ .Values.proxyService.service.targetPort }}
+        resources:
+          limits:
+            cpu: {{ .Values.proxyService.resources.limits.cpu }}
+            memory: {{ .Values.proxyService.resources.limits.memory }}
+          requests:
+            cpu: {{ .Values.proxyService.resources.requests.cpu }}
+            memory: {{ .Values.proxyService.resources.requests.memory }}
 ---
 apiVersion: v1
 kind: Service
@@ -37,6 +54,11 @@ metadata:
     app.kubernetes.io/name: {{ include "cinemaabyss.name" . }}
     app.kubernetes.io/instance: {{ .Release.Name }}
 spec:
+  type: {{ .Values.proxyService.service.type }}
   selector:
-    ... и тут
+    app: proxy-service
+  ports:
+    - protocol: TCP
+      port: {{ .Values.proxyService.service.port }}
+      targetPort: {{ .Values.proxyService.service.targetPort }}
 {{- end }}

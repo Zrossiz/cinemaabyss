@@ -5,17 +5,14 @@ WORKDIR /app
 # Copy go mod and sum files
 COPY go.mod ./
 
-# Download all dependencies
-RUN go mod download
-
 # Copy the source code
 COPY . .
 
 # Build the application
-RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o events-service .
+RUN go build -o events-service .
 
 # Use a smaller image for the final application
-FROM alpine:latest  
+FROM alpine:latest
 
 RUN apk --no-cache add ca-certificates
 

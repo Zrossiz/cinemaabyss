@@ -5,7 +5,9 @@
 1. Спроектируйте to be архитектуру КиноБездны, разделив всю систему на отдельные домены и организовав интеграционное взаимодействие и единую точку вызова сервисов.
 Результат представьте в виде контейнерной диаграммы в нотации С4.
 Добавьте ссылку на файл в этот шаблон
-[ссылка на файл](ссылка)
+
+[context.plantuml](c4/context.plantuml)
+[containers.plantuml](c4/containers.plantuml)
 
 # Задание 2
 
@@ -58,6 +60,10 @@
 
 Необходимые тесты для проверки этого API вызываются при запуске npm run test:local из папки tests/postman 
 Приложите скриншот тестов и скриншот состояния топиков Kafka из UI http://localhost:8090 
+
+[Тесты кафка](assets/Tests.jpg)
+[UI](assets/Kafka.png)
+
 
 # Задание 3
 
@@ -227,6 +233,7 @@ cat .docker/config.json | base64
 
   Будет наподобие такого
 
+```bash
   NAME                              READY   STATUS    
 
   events-service-7587c6dfd5-6whzx   1/1     Running  
@@ -242,6 +249,7 @@ cat .docker/config.json | base64
   proxy-service-577d6c549b-6qfcv    1/1     Running  
 
   zookeeper-0                       1/1     Running 
+```
 
   8. Добавим ingress
 
@@ -273,6 +281,9 @@ cat .docker/config.json | base64
 #### Шаг 3
 Добавьте сюда скриншота вывода при вызове https://cinemaabyss.example.com/api/movies и  скриншот вывода event-service после вызова тестов.
 
+[Скрин данных](assets/ProxyData.png)
+[Скрин тестов](assets/KuberTests.png)
+[Скрин событий](assets/Events.png)
 
 # Задание 4
 Для простоты дальнейшего обновления и развертывания вам как архитектуру необходимо так же реализовать helm-чарты для прокси-сервиса и проверить работу 
@@ -345,12 +356,10 @@ minikube tunnel
 ```
 
 Потом вызовите 
-https://cinemaabyss.example.com/api/movies
-
+https://cinemaabyss.example.com/api/movies и приложите скриншот
+[Скрин helm](assets/Helm.png) 
 
 ## Удаляем все
-
-Установите https://istio.io/latest/docs/reference/commands/istioctl/
 
 ```bash
 kubectl delete all --all -n cinemaabyss
